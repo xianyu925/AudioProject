@@ -726,11 +726,11 @@ class YingSinger(nn.Module):
 
 
 def main():
-    """Command-line interface for YingSinger inference."""
+    """Command-line interface for AudioProject inference."""
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="YingSinger: Zero-shot Singing Voice Synthesis and Editing",
+        description="AudioProject：零样本歌声合成与编辑",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 

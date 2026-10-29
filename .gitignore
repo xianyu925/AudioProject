@@ -75,11 +75,15 @@ dmypy.json
 # Project Specific
 # =============================================================================
 # Model checkpoints and weights
+ckp/
 ckpts/
 *.pt
 *.ckpt
 *.safetensors
 *.bin
+
+# Downloaded datasets
+data/
 
 # Output files
 outputs/

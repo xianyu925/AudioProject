@@ -16,7 +16,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Loading model on {device}...")
 
 try:
-    singer = YingSinger(singer_path="ckpts", device=device)
+    singer = YingSinger(singer_path="ckp", device=device)
     print("Model loaded successfully.")
 except Exception as e:
     print(f"Error loading model: {e}")
@@ -140,11 +140,11 @@ demo_inputs = [
 ]
 
 
-with gr.Blocks(title="YingSinger WebUI") as app:
+with gr.Blocks(title="AudioProject WebUI") as app:
     gr.Markdown(
         """
         <div style="text-align: center;">
-            <h1>YingMusic-Singer 零样本 歌声合成 & 编辑</h1>
+            <h1>AudioProject 零样本歌声合成与编辑</h1>
         </div>
         """
     )

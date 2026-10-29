@@ -1,100 +1,92 @@
-# YingMusic-Singer: Zero-shot Singing Voice Synthesis and Editing with Annotation-free Melody Guidance
+# YingMusic-Singer：基于免标注旋律引导的零样本歌声合成与编辑
 
-<!-- --- -->
+## 项目概述 ✨
 
-<div align="center">
+**YingMusic-Singer** 是一个基于**免标注旋律引导**的**零样本歌声合成（SVS）与编辑**统一框架。为满足实际应用中的规模化需求，该框架无需依赖成本高昂的音素级对齐和人工旋律标注，即可在零样本条件下，结合任意歌词与参考旋律进行歌声合成或编辑。
 
-[![Paper](https://img.shields.io/badge/Paper-YingMusic--Singer--Beta-blue)](https://arxiv.org/pdf/2512.04779)
-[![Demo](https://img.shields.io/badge/🎶%20Demo-YingMusic--Singer-red)](https://giantailab.github.io/YingMusic-Singer-demo/)
-[![Hugging Face](https://img.shields.io/badge/🤗%20HuggingFace-YingMusic--Singer-yellow)](https://huggingface.co/GiantAILab/YingMusic-Singer)
-[![ModelScope](https://img.shields.io/badge/🔮%20ModelScope-YingMusic--Singer-purple)](https://www.modelscope.cn/models/giantailab/YingMusic-Singer/)
+### 核心特性 🔧
 
-</div>
+- **合成与编辑一体化**：在同一框架中集成零样本歌声合成与编辑功能。
+- **免标注旋律引导**：自动从参考音频中提取旋律，无需人工 MIDI 标注或音素对齐。
+- **零样本生成**：无需针对目标音色进行微调，即可根据任意歌词和旋律生成高质量歌声。
+- **灵活的旋律输入**：支持使用参考音频或直接输入 MIDI 文件作为旋律来源。
 
-> **Note**: The beta version is deprecated. If you need to use it, please switch to the `beta` branch.
-
----
-
-## Overview ✨
-
-<!-- <p align="center">
-  <img src="figs/head.jpeg" width="720" alt="pipeline">
-</p> -->
-
-**YingMusic-Singer** is a unified framework for **Zero-shot Singing Voice Synthesis (SVS) and Editing**, driven by **Annotation-free Melody Guidance**. Addressing the scalability challenges of real-world applications, our system eliminates the reliance on costly phoneme-level alignment and manual melody annotations. It enables **arbitrary lyrics to be synthesized or edited with any reference melody** in a zero-shot manner.
-
-<!-- Our approach leverages a **Diffusion Transformer (DiT)** based generative model, incorporating a pre-trained melody extraction module to derive MIDI information directly from reference audio. By introducing a structured guidance mechanism and employing **Flow-GRPO reinforcement learning**, we achieve superior pronunciation clarity, melodic accuracy, and musicality without requiring fine-grained alignment. -->
-
-### 🔧 Key Features
-
-- **Unified Synthesis & Editing**: Seamlessly integrates zero-shot synthesis and editing within a single framework.
-- **Annotation-free Melody Guidance**: Automatically extracts melody from reference audio, eliminating the need for manual MIDI or phoneme alignment.
-- **Zero-Shot Capabilities**: Generates high-quality singing voices from arbitrary lyrics and melodies without fine-tuning on the target voice.
-- **Flexible Melody Input**: Accepts both reference audio and direct MIDI files as melody inputs for enhanced versatility.
-  <!-- - **Flow-GRPO Reinforcement Learning**: Optimizes pronunciation, melodic accuracy, and musicality via multi-objective rewards. -->
-  <!-- - **Structured Guidance Mechanism**: Enhances melodic stability and coherence using similarity distribution constraints. -->
-  <!-- - **Robust Generalization**: Outperforms existing methods in zero-shot synthesis and lyric replacement scenarios. -->
-
----
-
-<!-- <p align="center">
-  <img src="resources/imgs/main_v1.svg" width="720" alt="pipeline">
-</p> -->
-
-<!-- --- -->
-
-## News & Updates 🗞️
-
-- **2025-11-27**: Released the technical report.
-- **2025-11-26**: Released the beta version's inference code and model checkpoints.
-- **2026-02-09**: Released V1 inference code and [checkpoints](https://huggingface.co/GiantAILab/YingMusic-Singer), featuring bilingual support (Chinese & English), significantly improved audio quality, and enhanced generalization.
-- **2026-02-09**: Released the V1 version's [demo pages](https://giantailab.github.io/YingMusic-Singer-demo/).
-
----
-
-## Roadmap & TODO 🗺️
-
-- [x] Release beta version inference code and model checkpoints (currently supports Chinese & lower audio quality).
-- [x] Release V1 Version: Support for Chinese & English singing with higher audio quality and better generalization.
-
----
-
-## Installation 🛠️
+## 安装 🛠️
 
 ```bash
-git clone https://github.com/GiantAILab/YingMusic-Singer.git
-cd YingMusic-Singer
+git clone https://github.com/xianyu925/AudioProject.git
+cd AudioProject
 
 conda create -n singer python=3.12
 conda activate singer
 
-# Note: the torch and flash_attn versions can be adjusted based on your GPU capabilities.
-# Install PyTorch
+# 可根据 GPU 的兼容情况调整 torch 和 flash_attn 的版本。
+# 安装 PyTorch
 pip3 install torch==2.9.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cu126
-# Install flash-attention
+
+# 安装 FlashAttention
 pip3 install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.1/flash_attn-2.8.1+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl
-# Install other dependencies
+
+# 安装其他依赖
 pip3 install -r requirements.txt
 ```
 
----
+## 快速开始 🚀
 
-## Quick Start 🚀
+### 下载模型权重
 
-Download model checkpoints from [huggingface](https://huggingface.co/GiantAILab/YingMusic-Singer) or [modelscope](https://www.modelscope.cn/models/giantailab/YingMusic-Singer/)
+在项目根目录执行以下任一组命令，将模型权重及配套配置文件下载至 `./ckp` 目录，两种方式任选其一即可。
 
-> **Note**: If the pitch range of the reference audio differs significantly from the target melody (MIDI or audio), manually adjusting the key is recommended for optimal results.
+**方式一：从 [Hugging Face](https://huggingface.co/GiantAILab/YingMusic-Singer) 下载**
 
-### 1. Inference with CLI
+使用 Hugging Face 的 [`snapshot_download` 接口](https://huggingface.co/docs/huggingface_hub/guides/download)：
+
+```bash
+python -m pip install huggingface_hub
+python - <<'PY'
+from huggingface_hub import snapshot_download
+
+snapshot_download(
+    repo_id="GiantAILab/YingMusic-Singer",
+    local_dir="./ckp",
+)
+PY
+```
+
+**方式二：从 [ModelScope](https://www.modelscope.cn/models/giantailab/YingMusic-Singer/) 下载**
+
+使用 ModelScope 的 [`snapshot_download` 接口](https://github.com/modelscope/modelscope/blob/master/modelscope/hub/snapshot_download.py)：
+
+```bash
+python -m pip install modelscope
+python - <<'PY'
+from modelscope.hub.snapshot_download import snapshot_download
+
+snapshot_download(
+    model_id="giantailab/YingMusic-Singer",
+    local_dir="./ckp",
+)
+PY
+```
+
+下方命令行示例通过 `--ckpt_path ./ckp` 加载已下载的模型；Gradio 界面默认从 `ckp` 目录加载模型。
+
+> **提示**：如果音色参考音频与目标旋律（MIDI 或音频）的音高范围差异较大，建议手动调整调性，以获得更好的效果。
+
+### 1. 命令行推理
+
+建议将音色参考音频的时长控制在 5～7 秒，总时长不超过 45 秒。
 
 ```bash
 unset PYTHONPATH
 export PYTHONPATH=$(pwd)/src:$PYTHONPATH
+```
 
-# Please keep the prompt audio duration is around 5-7 seconds, and the total duration does not exceed 45 seconds.
+使用 MIDI 文件作为旋律输入：
 
-# infer from MIDI file
+```bash
 python src/singer/model.py --timbre_audio_path resources/audios/male.wav \
+    --ckpt_path ./ckp \
     --timbre_audio_content "在爱的回归线，又期待相见。" \
     --midi_file "resources/audios/female__Rnb_Funk__下等马_clip_001.mid" \
     --lyrics "头抬起来，你表情别太奇怪，无大碍。没伤到脑袋，如果我下手太重，私密马赛。习武十载，没下山没谈恋爱，吃光后山七八亩菜，练就这套拳脚，莫以貌取人哉。暮色压台，擂鼓未衰，下一个谁还要来？速来领拜，别耽误我热蒸屉揭盖。" \
@@ -102,9 +94,13 @@ python src/singer/model.py --timbre_audio_path resources/audios/male.wav \
     --cfg_strength 4.0 \
     --nfe_steps 64 \
     --pitch_shift -1
+```
 
-# infer from melody audio
+使用音频作为旋律输入：
+
+```bash
 python src/singer/model.py --timbre_audio_path resources/audios/male.wav \
+    --ckpt_path ./ckp \
     --timbre_audio_content "在爱的回归线，又期待相见。" \
     --melody_audio_path "resources/audios/female__Rnb_Funk__下等马_clip_001.wav" \
     --lyrics "头抬起来，你表情别太奇怪，无大碍。没伤到脑袋，如果我下手太重，私密马赛。习武十载，没下山没谈恋爱，吃光后山七八亩菜，练就这套拳脚，莫以貌取人哉。暮色压台，擂鼓未衰，下一个谁还要来？速来领拜，别耽误我热蒸屉揭盖。" \
@@ -114,51 +110,10 @@ python src/singer/model.py --timbre_audio_path resources/audios/male.wav \
     --pitch_shift -1
 ```
 
-### 2. Inference with Gradio Demo
+### 2. Gradio 界面推理
+
+运行以下命令启动 Gradio 演示界面：
 
 ```bash
 python app.py
 ```
-
-<!-- ### 2. Singing Voice Editing
-
-```bash
-# Please keep the prompt audio duration is around 5-7 seconds, and the total duration does not exceed 45 seconds.
-python src/singer/model.py --ckpt_path "ckpt_path" \
-    --timbre_audio_path "resources/audios/mxsf.wav" \
-    --timbre_audio_content "你说 你爱了不该爱的人 你的心中满是伤痕" \
-    --melody_audio_path "resources/audios/mxsf.wav" \
-    --lyrics "你说 你演错了剧本 赔尽了天真心真" \
-    --out_path "outputs/test_yingsinger.wav" \
-    --cfg_strength 3.0 \
-    --nfe_steps 100
-``` -->
-
----
-
-## Acknowledgements 🙏
-
-We would like to express our gratitude to the following projects for their contributions:
-
-- **[SOME](https://github.com/openvpi/SOME)**: For the Singing-Oriented MIDI Extractor, which we use as our melody extractor.
-- **[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)**: For the RMVPE model used for pitch extraction.
-- **[SongBloom](https://github.com/tencent-ailab/SongBloom)**: For the [Stable Audio VAE](https://github.com/Stability-AI/stable-audio-tools) implementation.
-
-## Citation 🧾
-
-If you use YingMusic-Singer for research, please cite:
-
-```
-@article{zheng2025yingmusicsinger,
-  title={YingMusic-Singer: Zero-shot Singing Voice Synthesis and Editing with Annotation-free Melody Guidance},
-  author={Zheng, Junjie and Hao, Chunbo and Ma, Guobin and Zhang, Xiaoyu and Chen, Gongyu and Ding, Chaofan and Chen, Zihao and Xie, Lei},
-  journal={arXiv preprint arXiv:2512.04779},
-  year={2025}
-}
-```
-
----
-
-## License 📝
-
-This project is released under the **MIT License**.

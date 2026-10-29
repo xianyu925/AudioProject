@@ -1,4 +1,4 @@
-"""YingMusic-Singer: Zero-shot Singing Voice Synthesis and Editing.
+"""AudioProject：零样本歌声合成与编辑。
 
 A unified framework for zero-shot singing voice synthesis (SVS) and editing,
 driven by annotation-free melody guidance.
