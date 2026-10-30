@@ -1,119 +1,175 @@
-# YingMusic-Singer：基于免标注旋律引导的零样本歌声合成与编辑
+# YingMusic-SVC: Real-World Robust Zero-Shot Singing Voice Conversion with Flow-GRPO and Singing-Specific Inductive Biases
 
-## 项目概述 ✨
+---
 
-**YingMusic-Singer** 是一个基于**免标注旋律引导**的**零样本歌声合成（SVS）与编辑**统一框架。为满足实际应用中的规模化需求，该框架无需依赖成本高昂的音素级对齐和人工旋律标注，即可在零样本条件下，结合任意歌词与参考旋律进行歌声合成或编辑。
+<div align="center">
 
-### 核心特性 🔧
+[![Paper](https://img.shields.io/badge/Paper-YingMusic--SVC-blue)](https://arxiv.org/abs/2512.04793)
+[![Hugging Face](https://img.shields.io/badge/🤗%20HuggingFace-YingMusic--SVC-yellow)](https://huggingface.co/GiantAILab/YingMusic-SVC)
+[![ModelScope](https://img.shields.io/badge/🔮%20ModelScope-YingMusic--SVC-purple)](https://www.modelscope.cn/models/giantailab/YingMusic-SVC/)
+[![Demo Page](https://img.shields.io/badge/🎧%20Demo%20Page-YingMusic--SVC-brightgreen)](https://giantailab.github.io/YingMusic-SVC)
 
-- **合成与编辑一体化**：在同一框架中集成零样本歌声合成与编辑功能。
-- **免标注旋律引导**：自动从参考音频中提取旋律，无需人工 MIDI 标注或音素对齐。
-- **零样本生成**：无需针对目标音色进行微调，即可根据任意歌词和旋律生成高质量歌声。
-- **灵活的旋律输入**：支持使用参考音频或直接输入 MIDI 文件作为旋律来源。
 
-## 安装 🛠️
 
-```bash
-git clone https://github.com/xianyu925/AudioProject.git
-cd AudioProject
+[//]: # ([![Hugging Face]&#40;https://img.shields.io/badge/Demo-YingMusic--SVC-green&#41;]&#40;&#41;)
 
-conda create -n singer python=3.12
-conda activate singer
+</div>
 
-# 可根据 GPU 的兼容情况调整 torch 和 flash_attn 的版本。
-# 安装 PyTorch
-pip3 install torch==2.9.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cu126
+---
 
-# 安装 FlashAttention
-pip3 install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.1/flash_attn-2.8.1+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl
+## Overview ✨
 
-# 安装其他依赖
-pip3 install -r requirements.txt
-```
+<p align="center">
+  <img src="figs/head.jpeg" width="720" alt="pipeline">
+</p>
 
-## 快速开始 🚀
+Singing voice conversion (SVC) aims to render the target singer’s timbre while preserving melody and lyrics. However, existing zero-shot SVC systems remain fragile in real songs due to harmony interference, F0 errors, and the lack of inductive biases for singing.
+We propose **YingMusic-SVC**, a robust zero-shot framework that unifies continuous pre-training, robust supervised fine-tuning, and Flow-GRPO reinforcement learning. Our model introduces a singing-trained RVC timbre shifter for timbre–content disentanglement, an F0-aware timbre adaptor for dynamic vocal expression, and an energy-balanced rectified flow matching loss to enhance high-frequency fidelity.
+Experiments on a graded multi-track benchmark show that YingMusic-SVC achieves consistent improvements over strong open-source baselines in timbre similarity, intelligibility, and perceptual naturalness—especially under accompanied and harmony-contaminated conditions—demonstrating its effectiveness for real-world SVC deployment.
 
-### 下载模型权重
+### 🔧 Key Features  
+- **Three‑Stage Training Pipeline**  
+  - **CPT**: Continuous Pre-Training with singing‑trained modules  
+  - **SFT**: Robust Supervised Fine-Tuning with *F0 perturbation* & *harmony augmentation*  
+  - **RL (Flow‑GRPO)**: Multi-reward reinforcement learning for perceptual quality  
 
-在项目根目录执行以下任一组命令，将模型权重及配套配置文件下载至 `./ckp` 目录，两种方式任选其一即可。
+- **Singing-Specific Inductive Biases**  
+  - 🎼 **RVC-based Timbre Shifter** (trained on 120 singers)  
+  - 🎚️ **F0‑Aware Fine-Grained Timbre Adaptor**  
+  - 🔊 **Energy-balanced Flow Matching Loss** (enhanced high-frequency details)
 
-**方式一：从 [Hugging Face](https://huggingface.co/GiantAILab/YingMusic-Singer) 下载**
+---
 
-使用 Hugging Face 的 [`snapshot_download` 接口](https://huggingface.co/docs/huggingface_hub/guides/download)：
 
-```bash
-python -m pip install huggingface_hub
-python - <<'PY'
-from huggingface_hub import snapshot_download
+<p align="center">
+  <img src="figs/svc_main.jpg" width="720" alt="pipeline">
+</p>
 
-snapshot_download(
-    repo_id="GiantAILab/YingMusic-Singer",
-    local_dir="./ckp",
-)
-PY
-```
+---
 
-**方式二：从 [ModelScope](https://www.modelscope.cn/models/giantailab/YingMusic-Singer/) 下载**
+## News & Updates 🗞️
+- **2025-11-26**: Released our accompany separator inference CLI and model ckpt
+- **2025-11-26**: Released gradio app for easy try    
+- **2025-11-25**: Released technical report
+- **2025-11-25**: Initial YingMusic-SVC inference CLI  
+- **2025-11-25**: Released model checkpoint  
+- **2025-11-25**: Released multi-track benchmark
 
-使用 ModelScope 的 [`snapshot_download` 接口](https://github.com/modelscope/modelscope/blob/master/modelscope/hub/snapshot_download.py)：
+---
 
-```bash
-python -m pip install modelscope
-python - <<'PY'
-from modelscope.hub.snapshot_download import snapshot_download
-
-snapshot_download(
-    model_id="giantailab/YingMusic-Singer",
-    local_dir="./ckp",
-)
-PY
-```
-
-下方命令行示例通过 `--ckpt_path ./ckp` 加载已下载的模型；Gradio 界面默认从 `ckp` 目录加载模型。
-
-> **提示**：如果音色参考音频与目标旋律（MIDI 或音频）的音高范围差异较大，建议手动调整调性，以获得更好的效果。
-
-### 1. 命令行推理
-
-建议将音色参考音频的时长控制在 5～7 秒，总时长不超过 45 秒。
+## Installation 🛠️
 
 ```bash
-unset PYTHONPATH
-export PYTHONPATH=$(pwd)/src:$PYTHONPATH
+git clone https://github.com/GiantAILab/YingMusic-SVC.git
+cd YingMusic-SVC
+
+conda create -n ymsvc python=3.10
+conda activate ymsvc
+pip install -r requirements.txt
+
+# install ffmpeg & sox
+sudo apt update
+sudo apt install -y sox libsox-fmt-all
+sudo apt install -y ffmpeg
 ```
 
-使用 MIDI 文件作为旋律输入：
+---
+
+## Quick Start 🚀
+
+### 1. **accompany separation**
+
 
 ```bash
-python src/singer/model.py --timbre_audio_path resources/audios/male.wav \
-    --ckpt_path ./ckp \
-    --timbre_audio_content "在爱的回归线，又期待相见。" \
-    --midi_file "resources/audios/female__Rnb_Funk__下等马_clip_001.mid" \
-    --lyrics "头抬起来，你表情别太奇怪，无大碍。没伤到脑袋，如果我下手太重，私密马赛。习武十载，没下山没谈恋爱，吃光后山七八亩菜，练就这套拳脚，莫以貌取人哉。暮色压台，擂鼓未衰，下一个谁还要来？速来领拜，别耽误我热蒸屉揭盖。" \
-    --out_path "outputs/test_yingsinger_zs.wav" \
-    --cfg_strength 4.0 \
-    --nfe_steps 64 \
-    --pitch_shift -1
+
+cd accom_separation
+bash infer.sh
+
 ```
 
-使用音频作为旋律输入：
+### 2. **SVC Inference**
 
 ```bash
-python src/singer/model.py --timbre_audio_path resources/audios/male.wav \
-    --ckpt_path ./ckp \
-    --timbre_audio_content "在爱的回归线，又期待相见。" \
-    --melody_audio_path "resources/audios/female__Rnb_Funk__下等马_clip_001.wav" \
-    --lyrics "头抬起来，你表情别太奇怪，无大碍。没伤到脑袋，如果我下手太重，私密马赛。习武十载，没下山没谈恋爱，吃光后山七八亩菜，练就这套拳脚，莫以貌取人哉。暮色压台，擂鼓未衰，下一个谁还要来？速来领拜，别耽误我热蒸屉揭盖。" \
-    --out_path "outputs/test_yingsinger_zs.wav" \
-    --cfg_strength 4.0 \
-    --nfe_steps 64 \
-    --pitch_shift -1
+bash my_infer.sh
 ```
 
-### 2. Gradio 界面推理
-
-运行以下命令启动 Gradio 演示界面：
+### 3. **Gradio APP**
 
 ```bash
-python app.py
+python gradio_app.py
 ```
+---
+
+## Benchmark Datasets 📚
+
+We provide a **graded difficulty benchmark**, derived from 100+ multi-track studio songs:
+
+[🤗 Download](https://huggingface.co/datasets/GiantAILab/YingMusic-SVC_Difficulty-Graded_Benchmark)
+[🔮 Download](https://www.modelscope.cn/datasets/giantailab/YingMusic-SVC_Difficulty-Graded_Benchmark)
+
+| Level | Description |
+|-------|-------------|
+| **GT Leading** | Clean studio lead vocals |
+| **Mix Vocal** | Lead + harmony contamination |
+| **Ours Leading** | Extracted via our Band RoFormer separator |
+
+
+---
+
+## Pretrained Models 🧪
+
+| Model              | Description                     | Link |
+|--------------------|--------------------------------|------|
+| **YingMusic-SVC-full** | RL-enhanced final model         | [![Hugging Face](https://img.shields.io/badge/🤗%20HuggingFace-YingMusic--SVC--Full-yellow)](https://huggingface.co/GiantAILab/YingMusic-SVC/blob/main/YingMusic-SVC-full.pt) |
+| **our BR separator** | Our accompany separation model | [![Hugging Face](https://img.shields.io/badge/🤗%20HuggingFace-BR--separator-yellow)](https://huggingface.co/GiantAILab/YingMusic-SVC/blob/main/bs_roformer.ckpt) |
+
+
+---
+
+## Development Roadmap & TODO 🗺️
+- [x] our stem-separator inference CLI & model ckpt
+- [x] develop gradio app for YingMusic-SVC
+- [ ] benchmark one-click eval script
+
+---
+
+## Acknowledgements 🙏  
+
+This project is built upon:
+
+- [Seed-VC](https://github.com/Plachtaa/seed-vc)
+
+[//]: # (- BigVGAN Vocoder  )
+
+[//]: # ()
+[//]: # (---)
+
+[//]: # ()
+[//]: # ()
+
+
+## Star 🌟 History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=GiantAILab/YingMusic-SVC&type=date&legend=top-left)](https://www.star-history.com/#GiantAILab/YingMusic-SVC&type=date&legend=top-left)
+
+
+## Citation 🧾
+
+
+If you use YingMusic‑SVC for research, please cite:
+
+```
+
+@article{chen2025yingmusicsvc,
+  title={YingMusic-SVC: Real-World Robust Zero-Shot Singing Voice Conversion with Flow-GRPO and Singing-Specific Inductive Biases},
+  author={Chen, Gongyu and Zhang, Xiaoyu and Weng, Zhenqiang and Zheng, Junjie and Shen, Da and Ding, Chaofan and Zhang, Wei-Qiang and Chen, Zihao},
+  journal={arXiv preprint arXiv:2512.04793},
+  year={2025}
+}
+
+```
+
+---
+
+## License 📝  
+Our code is released under MIT License.
